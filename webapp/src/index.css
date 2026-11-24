@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-mist-light text-ink font-sans antialiased;
+    margin: 0;
+  }
+
+  * {
+    border-color: theme('colors.mist.DEFAULT');
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply text-ink;
+    line-height: 1.2;
+  }
+}
+
+@layer components {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.mist.DEFAULT') transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: theme('colors.mist.DEFAULT');
+    border-radius: 9999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+/* Toastify theme overrides to match brand */
+.Toastify__toast {
+  border-radius: 14px !important;
+  font-family: theme('fontFamily.sans') !important;
+  box-shadow: 0 8px 24px -6px rgba(7, 28, 30, 0.12), 0 2px 6px -2px rgba(7, 28, 30, 0.06) !important;
+  border: 1px solid theme('colors.mist.DEFAULT') !important;
+}
+
+.Toastify__toast--success {
+  border-color: theme('colors.primary.200') !important;
+  background: theme('colors.primary.50') !important;
+  color: theme('colors.primary.700') !important;
+}
+
+.Toastify__toast--error {
+  border-color: theme('colors.danger.200') !important;
+  background: theme('colors.danger.50') !important;
+  color: theme('colors.danger.700') !important;
+}
+
+.Toastify__toast--warning {
+  border-color: theme('colors.gold.200') !important;
+  background: theme('colors.gold.50') !important;
+  color: theme('colors.gold.700') !important;
+}
+
+.Toastify__toast--info {
+  border-color: theme('colors.mist.DEFAULT') !important;
+  background: white !important;
+  color: theme('colors.ink.DEFAULT') !important;
+}
+
+.Toastify__progress-bar--success {
+  background: theme('colors.primary.500') !important;
+}
+.Toastify__progress-bar--error {
+  background: theme('colors.danger.500') !important;
+}
+.Toastify__progress-bar--warning {
+  background: theme('colors.gold.500') !important;
+}
+.Toastify__close-button {
+  color: theme('colors.ink.soft') !important;
+}

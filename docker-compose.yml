@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: barberq-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=barberq
+      - POSTGRES_PASSWORD=barberq_password
+      - POSTGRES_DB=barberq_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U barberq -d barberq_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    container_name: barberq-api-dev
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api:/app
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://barberq:barberq_password@postgres:5432/barberq_db
+      - POSTGRES_SERVER=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=barberq
+      - POSTGRES_PASSWORD=barberq_password
+      - POSTGRES_DB=barberq_db
+      - JWT_SECRET=super-secret-barberq-jwt-key-change-in-production-min32chars
+      - ENVIRONMENT=development
+      - DEBUG=True
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile.dev
+    container_name: webapp-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - VITE_API_URL=http://localhost:8000/api/v1
+      - VITE_WS_URL=ws://localhost:8000/api/v1
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

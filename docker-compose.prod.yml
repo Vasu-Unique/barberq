@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: barberq-postgres-prod
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-barberq}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-barberq_password}
+      - POSTGRES_DB=${POSTGRES_DB:-barberq_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-barberq} -d ${POSTGRES_DB:-barberq_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: barberq-api-prod
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-barberq}:${POSTGRES_PASSWORD:-barberq_password}@postgres:5432/${POSTGRES_DB:-barberq_db}
+      - JWT_SECRET=${JWT_SECRET:-super-secret-barberq-jwt-key-change-in-production-min32chars}
+      - ENVIRONMENT=production
+      - DEBUG=False
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile.prod
+    container_name: webapp-prod
+    ports:
+      - "${PORT:-8080}:80"
+    restart: unless-stopped
+    depends_on:
+      - api
+
+volumes:
+  pgdata_prod:
